@@ -42,8 +42,8 @@ THROTTLE_CODE_MAP={
     "0x0000000000000040": "sync_boost", 
     "0x0000000000000080": "board_limit", }#high perf
 
-def partse_throttle(code:str)->str:
-    code=code.strip.lower()
+def parse_throttle(code:str)->str:
+    code=code.strip().lower()
     return THROTTLE_CODE_MAP.get(code, "unknown")
 
 def read_gpu() ->Optional[GPUmetrics]:
@@ -57,7 +57,7 @@ def read_gpu() ->Optional[GPUmetrics]:
            "power.limit,"
            "clocks_throttle_reasons.active")
     try:
-        result=subprocess.run(['nvidia-smi', f"--query-gpu{query}", "--forma=csv, noheader, nounits"], capture_output=True, text=True, timeout=5)
+        result=subprocess.run(['nvidia-smi', f"--query-gpu={query}", "--format=csv,noheader,nounits"], capture_output=True, text=True, timeout=5)
 
         if result.returncode!=0:
             return mock()
@@ -78,7 +78,7 @@ def read_gpu() ->Optional[GPUmetrics]:
             except ValueError:
                 return 0
         
-        return GPUmetrics(gpu_name=parts[0], gpu_util=float_(parts[1]), mem_util=float_(parts[2]), mem_used_mb=int_(parts[3]), mem_total_mb=int_(parts[4]), temperature=float_(parts[5]), power_draw=float_(parts[6]), power_limit=float_(parts[7]) if parts[7] not in ("n/a,")else 0.0, throttle_reason=partse_throttle(parts[8]) if parts[8] not in ("n/a","")else "none" ,timestamp=time.time(),)
+        return GPUmetrics(gpu_name=parts[0], gpu_util=float_(parts[1]), mem_util=float_(parts[2]), mem_used_mb=int_(parts[3]), mem_total_mb=int_(parts[4]), temperature=float_(parts[5]), power_draw=float_(parts[6]), power_limit=float_(parts[7]) if parts[7] not in ("n/a,")else 0.0, throttle_reason=parse_throttle(parts[8]) if parts[8] not in ("n/a","")else "none" ,timestamp=time.time(),)
     except Exception:
         return mock()
 
