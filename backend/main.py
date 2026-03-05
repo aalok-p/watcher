@@ -4,9 +4,13 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from gpu_m import read_gpu
+from agent import agent
 from typing import Set
 import json
 
+latest_diagnosis: dict ={}
+diagnose_every_n =3
+poll_count=0
 latest_metric: dict = {}
 clients: Set[WebSocket]=set()
 
@@ -63,3 +67,10 @@ async def ws_endppint(websocket:WebSocket):
     except WebSocketDisconnect:
         clients.discard(websocket)
 
+@app.post("/diagnose")
+async def get_diagnose():
+    metrics=read_gpu()
+    if metrics is None:
+        return JSONResponse({"error": "no GPU"}, status_code=503)
+    diagnosis = agent.diagnosis(metrics)
+    return JSONResponse({"metrics": metrics.to_dict(), "diagnosis": diagnosis})
