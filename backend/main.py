@@ -1,11 +1,14 @@
 import asyncio
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from gpu_m import read_gpu
+from typing import Set
+import json
 
 latest_metric: dict = {}
+clients: Set[WebSocket]=set()
 
 async def monitor_loop():
     global latest_metric
@@ -19,6 +22,15 @@ async def monitor_loop():
         except Exception as e:
             print(f"[monitor] error: {e}")
         await asyncio.sleep(3)
+
+async def broadcast(payload:dict):
+    dead=set()
+    for s in clients:
+        try:
+            await s.send_text(json.dumps(payload))
+        except Exception:
+            dead.add(s)
+        clients.difference_update(dead)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -41,6 +53,13 @@ async def health():
 async def metrics():
     return JSONResponse({"metrics":latest_metric})
 
-
-
+@app.websocket("/s")
+async def ws_endppint(websocket:WebSocket):
+    await websocket.accept()
+    clients.add(WebSocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        clients.discard(websocket)
 
