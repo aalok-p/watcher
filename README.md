@@ -8,3 +8,4 @@ things to add -
 - [ ] llm based diagnosis & reasoning
 - [ ] add vsison sdk to monitor
 - [ ] monitor via prometheus
+- [ ] make cli version
