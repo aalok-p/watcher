@@ -1,4 +1,4 @@
-import { Gauge, Bar } from './Gauge'
+import { Gauge, Bar } from './gauge'
 
 const COLOR_MAP = {
   vram: '#7c3aed',
