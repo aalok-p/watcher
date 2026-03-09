@@ -30,7 +30,7 @@ class WatcherAgent:
                              "This is the primary source fo stuttering or OOM crashes."),
                 "action":("Lower texture quality/resolution, reduce batch size,"
                           "or ranbale gradiend checkpointing."),
-                "bottleneck":"vram_vound"}
+                "bottleneck":"vram_bound"}
         
         if m.power_pct>95 and m.power_limit>0:
             return {

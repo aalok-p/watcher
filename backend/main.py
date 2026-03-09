@@ -19,8 +19,8 @@ events: deque =deque(maxlen=200)
 
 def make_event(metrics:dict, diagnosis:dict)-> dict | None:
     status= diagnosis.get("status", "healthy")
-    bottleneck=diagnosis.get("status", "none")
-    if status!= "healhty" or bottleneck not in ("none", "compute_bound"):
+    bottleneck=diagnosis.get("bottleneck", "none")
+    if status!= "healthy" or bottleneck not in ("none", "compute_bound"):
         return {
             "id":f"evt- {int(time.time()*1000)}",
             "time":time.strftime("%H:%M:%S"),
@@ -32,19 +32,19 @@ def make_event(metrics:dict, diagnosis:dict)-> dict | None:
     return None
 
 async def monitor_loop():
-    global latest_metric
+    global latest_metric, poll_count, latest_diagnosis
     while True:
         try:
             metrics = read_gpu()
             if metrics is None:
-                await asyncio.sleep(poll_count)
+                await asyncio.sleep(3)
                 continue
 
             latest_metric = metrics.to_dict()
             poll_count+=1
 
             if poll_count% diagnose_every_n==0:
-                latest_diagnosis=agent.diagnosis(metrics)
+                latest_diagnosis=agent.rule_based(metrics)
                 event=make_event(latest_metric, latest_diagnosis)
                 if event:
                     events.appendleft(event)
@@ -67,7 +67,7 @@ async def broadcast(payload:dict):
             await s.send_text(json.dumps(payload))
         except Exception:
             dead.add(s)
-        clients.difference_update(dead)
+    clients.difference_update(dead)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -93,7 +93,7 @@ async def metrics():
 @app.websocket("/s")
 async def ws_endppint(websocket:WebSocket):
     await websocket.accept()
-    clients.add(WebSocket)
+    clients.add(websocket)
     if latest_metric:
         await websocket.send_text(json.dumps({
             "type":"update",
@@ -116,5 +116,5 @@ async def get_diagnose():
     metrics=read_gpu()
     if metrics is None:
         return JSONResponse({"error": "no GPU"}, status_code=503)
-    diagnosis = agent.diagnosis(metrics)
+    diagnosis = agent.rule_based(metrics)
     return JSONResponse({"metrics": metrics.to_dict(), "diagnosis": diagnosis})
