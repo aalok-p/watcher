@@ -1,6 +1,6 @@
 // all live data
 import { useState, useEffect, useRef, useCallback } from "react"
-const ws_url = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/s'
+const ws_url = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws'
 
 export function useWatcher() {
   const [metrics, setMetrics] =useState(null)

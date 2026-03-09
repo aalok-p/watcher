@@ -11,6 +11,7 @@ import time
 from collections import deque
 from config import POLL_INTERVAL_SEC, SCREENSHOT_ENABLED
 from screen_capture import capture_b64
+
 latest_diagnosis: dict ={}
 diagnose_every_n =3
 poll_count=0
@@ -38,7 +39,7 @@ async def monitor_loop():
         try:
             metrics = read_gpu()
             if metrics is None:
-                await asyncio.sleep(3)
+                await asyncio.sleep(POLL_INTERVAL_SEC)
                 continue
 
             latest_metric = metrics.to_dict()
@@ -93,7 +94,7 @@ async def health():
 async def metrics():
     return JSONResponse({"metrics":latest_metric, "diagnosis": latest_diagnosis})
 
-@app.websocket("/s")
+@app.websocket("/ws")
 async def ws_endpoint(websocket:WebSocket):
     await websocket.accept()
     clients.add(websocket)
