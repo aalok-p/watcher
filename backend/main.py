@@ -9,6 +9,8 @@ from typing import Set
 import json
 import time
 from collections import deque
+from config import POLL_INTERVAL_SEC, SCREENSHOT_ENABLED
+from screen_capture import capture_screen_b64
 
 latest_diagnosis: dict ={}
 diagnose_every_n =3
@@ -43,7 +45,7 @@ async def monitor_loop():
             latest_metric = metrics.to_dict()
             poll_count+=1
 
-            if poll_count% diagnose_every_n==0:
+            if poll_count % diagnose_every_n==0:
                 latest_diagnosis=agent.rule_based(metrics)
                 event=make_event(latest_metric, latest_diagnosis)
                 if event:
@@ -53,12 +55,14 @@ async def monitor_loop():
                 "type":"update",
                 "metrics":latest_metric,
                 "diagnosis":latest_diagnosis,
-                "events": list(events)[:20]
+                "events":list(events)[:20],
             }
+            if SCREENSHOT_ENABLED:
+                payload["screenshot"] = capture_screen_b64()
             await broadcast(payload)
         except Exception as e:
             print(f"[monitor] error: {e}")
-        await asyncio.sleep(3)
+        await asyncio.sleep(POLL_INTERVAL_SEC)
 
 async def broadcast(payload:dict):
     dead=set()
@@ -88,10 +92,10 @@ async def health():
 
 @app.get("/metrics")
 async def metrics():
-    return JSONResponse({"metrics":latest_metric})
+    return JSONResponse({"metrics":latest_metric, "diagnosis": latest_diagnosis})
 
 @app.websocket("/s")
-async def ws_endppint(websocket:WebSocket):
+async def ws_endpoint(websocket:WebSocket):
     await websocket.accept()
     clients.add(websocket)
     if latest_metric:
