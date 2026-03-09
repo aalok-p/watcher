@@ -10,8 +10,7 @@ import json
 import time
 from collections import deque
 from config import POLL_INTERVAL_SEC, SCREENSHOT_ENABLED
-from screen_capture import capture_screen_b64
-
+from screen_capture import capture_b64
 latest_diagnosis: dict ={}
 diagnose_every_n =3
 poll_count=0
@@ -58,7 +57,7 @@ async def monitor_loop():
                 "events":list(events)[:20],
             }
             if SCREENSHOT_ENABLED:
-                payload["screenshot"] = capture_screen_b64()
+                payload["screenshot"] = capture_b64()
             await broadcast(payload)
         except Exception as e:
             print(f"[monitor] error: {e}")
