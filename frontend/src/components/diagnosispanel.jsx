@@ -1,3 +1,5 @@
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
 const STATUS_COLORS = {
   healthy: '#22c55e',
   warning: '#f59e0b',
@@ -30,7 +32,6 @@ export function DiagnosisPanel({ diagnosis }) {
 
   return (
     <div style={{ ...styles.panel, borderColor: statusColor + '44' }}>
-      {/* Header row */}
       <div style={styles.header}>
         <span style={{ ...styles.statusDot, background: statusColor, boxShadow: `0 0 8px ${statusColor}` }} />
         <span style={{ ...styles.headline, color: statusColor }}>{diagnosis.headline}</span>
@@ -41,10 +42,8 @@ export function DiagnosisPanel({ diagnosis }) {
         )}
       </div>
 
-      {/* Diagnosis body */}
       <p style={styles.body}>{diagnosis.diagnosis}</p>
 
-      {/* Action */}
       <div style={styles.actionBox}>
         <span style={styles.actionLabel}>→ ACTION</span>
         <span style={styles.actionText}>{diagnosis.action}</span>
@@ -130,4 +129,5 @@ const styles = {
     color: '#e2e8f0',
     lineHeight: 1.5,
   },
+
 }

@@ -3,6 +3,7 @@ import { GpuStatusCards } from './components/gpucard'
 import { DiagnosisPanel } from './components/diagnosispanel'
 import { EventTimeline } from './components/events'
 import { MetricsChart } from './components/metrics'
+import { ChatPanel } from './components/chatpanel'
 
 export default function App() {
   const { metrics, diagnosis, events, connected } = useWatcher()
@@ -38,15 +39,17 @@ export default function App() {
           <Section title="Trends">
             <MetricsChart metrics={metrics} />
           </Section>
+          <Section title="Event timeline">
+            <EventTimeline events={events} />
+          </Section>
         </div>
 
-        {/* Right column */}
         <div style={s.col}>
           <Section title="Diagnosis">
             <DiagnosisPanel diagnosis={diagnosis} />
           </Section>
-          <Section title="Event Timeline">
-            <EventTimeline events={events} />
+          <Section title="Ask Watcher" style={{ marginTop: 40 }}>
+            <ChatPanel metrics={metrics} />
           </Section>
         </div>
       </main>
@@ -54,15 +57,16 @@ export default function App() {
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity:.4 } 50% { opacity:.8 } }
+        @keyframes blink { 0%,100% { opacity:1 } 50% { opacity:0 } }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
       `}</style>
     </div>
   )
 }
 
-function Section({ title, children }) {
+function Section({ title, children, style }) {
   return (
-    <section style={s.section}>
+    <section style={{ ...s.section, ...style }}>
       <h2 style={s.sectionTitle}>{title}</h2>
       {children}
     </section>
@@ -136,6 +140,9 @@ const s = {
     display: 'flex',
     flexDirection: 'column',
     gap: 20,
+  },
+  chatWrap: {
+    padding: '0 24px 28px',
   },
   section: {
     display: 'flex',
