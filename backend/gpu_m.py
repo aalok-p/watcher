@@ -60,12 +60,14 @@ def read_gpu() ->Optional[GPUmetrics]:
         result=subprocess.run(['nvidia-smi', f"--query-gpu={query}", "--format=csv,noheader,nounits"], capture_output=True, text=True, timeout=5)
 
         if result.returncode!=0:
-            return mock()
+            print(f"[GPU] nvidia-smi failed: {result.stderr}")
+            return None  
         
         line=result.stdout.strip().split("\n")[0]
         parts=[p.strip() for p in line.split(",")]
         if len(parts)<9:
-            return mock()
+            print(f"[GPU] Invalid nvidia-smi output: {line}")
+            return None  
         
         def float_(v:str)->float:
             try:
@@ -79,8 +81,9 @@ def read_gpu() ->Optional[GPUmetrics]:
                 return 0
         
         return GPUmetrics(gpu_name=parts[0], gpu_util=float_(parts[1]), mem_util=float_(parts[2]), mem_used_mb=int_(parts[3]), mem_total_mb=int_(parts[4]), temperature=float_(parts[5]), power_draw=float_(parts[6]), power_limit=float_(parts[7]) if parts[7] not in ("n/a,")else 0.0, throttle_reason=parse_throttle(parts[8]) if parts[8] not in ("n/a","")else "none" ,timestamp=time.time(),)
-    except Exception:
-        return mock()
+    except Exception as e:
+        print(f"[GPU] Error reading GPU: {e}")
+        return None  
 
 def mock()-> GPUmetrics:
     t= time.time()

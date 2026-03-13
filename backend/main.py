@@ -2,7 +2,8 @@ import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from gpu_m import read_gpu
 from agent import agent
 from llm import stream_chat, llm_diagnose
@@ -12,6 +13,7 @@ import time
 from collections import deque
 from config import POLL_INTERVAL_SEC, SCREENSHOT_ENABLED
 from screen_capture import capture_b64
+import os
 
 latest_diagnosis: dict ={}
 diagnose_every_n =3
@@ -86,6 +88,18 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"])
+
+# Mount frontend static files
+frontend_dist=os.path.join(os.path.dirname(__file__), "../frontend/dist")
+if os.path.exists(frontend_dist):
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+
+@app.get("/")
+async def root():
+    index_path = os.path.join(frontend_dist, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"message": "frontend not built, Run: npm run build in frontend/"}
 
 @app.get("/health")
 async def health():
