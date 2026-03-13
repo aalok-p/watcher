@@ -4,6 +4,7 @@ import { DiagnosisPanel } from './components/diagnosispanel'
 import { EventTimeline } from './components/events'
 import { MetricsChart } from './components/metrics'
 import { ChatPanel } from './components/chatpanel'
+import watcherLogo from './watcher.svg'
 
 export default function App() {
   const { metrics, diagnosis, events, connected } = useWatcher()
@@ -12,7 +13,7 @@ export default function App() {
     <div style={s.root}>
       <header style={s.header}>
         <div style={s.logo}>
-          <img src="/src/watcher.svg"alt="Watcher Logo" style={{ height: 32, marginRight: 12 }} />
+          <img src={watcherLogo} alt="Watcher Logo" style={{ height: 32, marginRight: 12 }} />
           <span style={s.logoText}>i know what ur GPU's do</span>
         </div>
         <div style={s.connPill}>
