@@ -2,9 +2,10 @@ import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from gpu_m import read_gpu
 from agent import agent
+from llm import stream_chat, llm_diagnose
 from typing import Set
 import json
 import time
@@ -122,3 +123,22 @@ async def get_diagnose():
         return JSONResponse({"error": "no GPU"}, status_code=503)
     diagnosis = agent.rule_based(metrics)
     return JSONResponse({"metrics": metrics.to_dict(), "diagnosis": diagnosis})
+
+@app.post("/llm-diagnose")
+async def llm_diagnosis():
+    if not latest_metric:
+        return JSONResponse({"error": "no metrics yet"}, status_code=503)
+    result=await llm_diagnosis(latest_metric)
+    return JSONResponse(result)
+
+@app.post("/chat")
+async def chat_endpoint(body: dict):
+    message = (body.get("message") or "").strip()
+    if not message:
+        return JSONResponse({"error": "empty message"}, status_code=400)
+
+    async def generate():
+        async for token in stream_chat(message, latest_metric):
+            yield token
+
+    return StreamingResponse(generate(), media_type="text/plain; charset=utf-8")

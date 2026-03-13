@@ -5,7 +5,7 @@
 things to add -
 - [x] read nvidia-smi
 - [x] rule based diagnosis
-- [ ] llm based diagnosis & reasoning
+- [x] llm based diagnosis & reasoning
 - [ ] add vsison sdk to monitor
 - [ ] monitor via prometheus
 - [ ] make cli version
