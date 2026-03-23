@@ -5,7 +5,7 @@ import torch
 from transfomers import AutoModelForCasualLM, AutoTokenizer
 from PIL import Image
 import base64
-from typing import Optional, dict
+from typing import Optional, Dict
 
 logger = logging.getLogger(__name__)
 class Moondream_ai:
@@ -65,7 +65,33 @@ class Moondream_ai:
         except Exception as e:
             return None
     
+    def detect_app(self, image:Image.Image)->Optional[str]:
+        return self.analyze_image(image, "What applications or windows are visible on this screen ? List the main ones.")
     
+    def activity(self, image:Image.Image) -> Optional[str]:
+        return self,self.analyze_image(image, "What is the user doing on this computer ? Describe the main activity within in one sentence.")
 
+    def get_gpu(self, image:Image.Image)-> Dict[str, Optional[str]]:
+        #info of gpu
+        if not self.is_ready():
+            return {
+                "applications":None,
+                "activity":None,
+                "ready":False
+            }
+        return {
+            "application":self.detect_app(image),
+            "activity":self.activity(image),
+            "ready":True
+        }
     
+vision_i: Optional[Moondream_ai]=None
+
+def get_vision(mode_id:str ="vikhyatk/moondream2", cache_dir:Optional[str]=None)->Moondream_ai:
+    global vision_i
+
+    if vision_i is None:
+        vision_i =Moondream_ai(model_id=mode_id, cache_dir=cache_dir)
+    
+    return vision_i
     
