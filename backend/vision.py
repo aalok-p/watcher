@@ -3,7 +3,9 @@ import io
 import logging
 import torch
 from transfomers import AutoModelForCasualLM, AutoTokenizer
-
+from PIL import Image
+import base64
+from typing import Optional, dict
 
 logger = logging.getLogger(__name__)
 class Moondream_ai:
@@ -37,5 +39,33 @@ class Moondream_ai:
     
     def is_ready(self)->bool:
         return self.loaded and self.mode is not None
+    
+    def analyze_image(self, image:Image.Image, question:str)-> Optional[str]:
+        if not self.is_ready():
+            logger.warining("model not ready")
+            return None
+        try:
+            enc_image = self.model.encode_image(image)
+            #ans
+            answer =self.model.answer_question(enc_image, question, self.tokenizer)
+            return answer.strip()
+
+        except Exception as e:
+            logger.error("failed to analyze image: {e}")
+            return None
+    
+    def analyze_base64(self, b64_image:str, question:str)->Optional[str]:
+        if not b64_image:
+            return None
+        try:
+            image_data= base64.b64decode(b64_image)
+            image = Image.open(io.BytesIO(image_data))
+
+            return self,self.analyze_image(image, question)
+        except Exception as e:
+            return None
+    
+    
+
     
     
