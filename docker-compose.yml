@@ -19,8 +19,8 @@ services:
       #when using nvidia-docker for nvidia gpu
       NVIDIA_VISIBLE_DEVICES: all
     
-    # uncommnet for nvidia- gpu
-    # runtime: nvidia
+    # enable for nvidia GPU on Linux (default NVIDIA-GPU)
+    runtime: nvidia
     
     # For Docker Desktop on Mac/Windows with GPU support - Uncomment if needed
     # device_requests:

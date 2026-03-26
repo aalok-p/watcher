@@ -13,6 +13,8 @@ COPY frontend/eslint.config.js ./
 
 RUN npm run build
 
+RUN cp -r public/* dist/ 2>/dev/null || true
+
 FROM python:3.11-slim
 
 WORKDIR /app
