@@ -117,8 +117,8 @@ async def llm_diagnose(metrics: dict) -> dict:
     except httpx.ConnectError:
         return {
             "status": "error",
-            "headline": "OpenAI API unreachable.",
-            "diagnosis": "Cannot connect to OpenAI API. Check your network connection and API key.",
+            "headline": "Oxlo AI API unreachable.",
+            "diagnosis": "Cannot connect to Oxlo AI API. Check your network connection and API key.",
             "action": "Verify OPENAI_API_KEY is set correctly in .env",
         }
     except Exception as e:
@@ -126,5 +126,5 @@ async def llm_diagnose(metrics: dict) -> dict:
             "status": "error",
             "headline": "AI diagnosis failed.",
             "diagnosis": str(e),
-            "action": "Check OpenAI API key and base URL configuration.",
+            "action": "Check Oxlo AI API key and base URL configuration.",
         }
