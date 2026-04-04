@@ -11,10 +11,10 @@ services:
       SCREENSHOT_ENABLED: "true"
       PORT: 8000
       
-      # Openai config
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-your-key-here}
-      OPENAI_BASE_URL: https://api.openai.com/v1
-      OPENAI_MODEL: yourmodelname
+      # Oxlo AI config
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-your-oxlo-api-key-here}
+      OPENAI_BASE_URL: https://api.oxlo.ai/v1
+      OPENAI_MODEL: deepseek-r1-8b
       
       #when using nvidia-docker for nvidia gpu
       NVIDIA_VISIBLE_DEVICES: all
