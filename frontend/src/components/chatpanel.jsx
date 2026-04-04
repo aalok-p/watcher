@@ -64,7 +64,7 @@ export function ChatPanel({ metrics }) {
         const updated = [...prev]
         updated[updated.length - 1] = {
           role: 'assistant',
-          text: ` Error: ${err.message}. Check your OpenAI API key.`,
+          text: ` Error: ${err.message}. Check your Oxlo AI API key.`,
         }
         return updated
       })

@@ -11,5 +11,5 @@ PORT = int(os.getenv("PORT", "8000"))
 # LM_STUDIO_MODEL = os.getenv("LM_STUDIO_MODEL", "local-model")
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "your model")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.oxlo.ai/v1")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "deepseek-r1-8b")

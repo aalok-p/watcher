@@ -39,10 +39,10 @@ POLL_INTERVAL_SEC=3\n\
 SCREENSHOT_ENABLED=true\n\
 PORT=8000\n\
 \n\
-# OpenAI Configuration (required for AI features)\n\
-OPENAI_API_KEY=your-api-key-here\n\
-OPENAI_BASE_URL=https://api.openai.com/v1\n\
-OPENAI_MODEL=gpt-4o-mini\n" > backend/.env
+# Oxlo AI Configuration (required for AI features)\n\
+OPENAI_API_KEY=your-oxlo-api-key-here\n\
+OPENAI_BASE_URL=https://api.oxlo.ai/v1\n\
+OPENAI_MODEL=deepseek-r1-8b\n" > backend/.env
 
 EXPOSE 8000
 
