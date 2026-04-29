@@ -19,6 +19,8 @@ docker-compose up --build
 
 Then open: **http://localhost:8000**
 
+Watcher (Video Demo) - **https://youtu.be/G8i196ag9CY?si=JXK_Bs2pw1fh0TzJ**
+
 
 things to add -
 - [x] read nvidia-smi
