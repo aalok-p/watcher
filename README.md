@@ -3,18 +3,41 @@
 > Real-time AI GPU health coach. Watches your GPU metrics, diagnoses bottlenecks, and explains fixes in plain English.
 
 
-## one command setup
+## Setup
+
+### Linux
 
 ```bash
 # Clone the repo 
 git clone <repo-url>
 cd watcher
 
-# add nvidia container toolkit (execute one setup-nvidia-gpu.sh file) - skip if already have
-bash setup-nvidia-gpu.sh
+# Install NVIDIA Container Toolkit (skip if already installed)
+sudo bash setup-nvidia-gpu.sh
 
 # Start with docker-compose
-docker-compose up --build
+docker compose up --build
+```
+
+### Windows (WSL2)
+
+```bash
+# 1. Install Docker Desktop with WSL2 backend
+# 2. In WSL2, install NVIDIA GPU driver for WSL:
+#    https://developer.nvidia.com/cuda/wsl
+
+# Clone the repo
+git clone <repo-url>
+cd watcher
+
+# Run Windows setup checks
+powershell.exe -File setup-windows.ps1
+
+# Install NVIDIA Container Toolkit (skip if already installed)
+sudo bash setup-nvidia-gpu.sh
+
+# Start with docker-compose
+docker compose up --build
 ```
 
 Then open: **http://localhost:8000**
