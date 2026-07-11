@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   watcher:
     build: .
@@ -10,24 +8,19 @@ services:
       POLL_INTERVAL_SEC: 3
       SCREENSHOT_ENABLED: "true"
       PORT: 8000
-      
+
+      # GPU provider: nvidia (default) or mock
+      # Set by setup-windows.ps1 or .env
+      GPU_PROVIDER: ${GPU_PROVIDER:-nvidia}
+
       # Oxlo AI config
       OPENAI_API_KEY: ${OPENAI_API_KEY:-your-oxlo-api-key-here}
       OPENAI_BASE_URL: https://api.oxlo.ai/v1
       OPENAI_MODEL: deepseek-r1-8b
-      
-      #when using nvidia-docker for nvidia gpu
-      NVIDIA_VISIBLE_DEVICES: all
-    
-    # enable for nvidia GPU on Linux (default NVIDIA-GPU)
-    runtime: nvidia
-    
-    # For Docker Desktop on Mac/Windows with GPU support - Uncomment if needed
-    # device_requests:
-    #   - driver: nvidia
-    #     count: 1
-    #     capabilities: [gpu]
-    
+
+    # GPU passthrough is injected via docker compose override file
+    # See setup-windows.ps1 or setup-nvidia-gpu.sh for details
+
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
