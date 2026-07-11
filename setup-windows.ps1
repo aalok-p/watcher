@@ -61,24 +61,45 @@ else {
     Write-Warning "  Ensure Docker Desktop is configured with WSL2 backend."
 }
 
-#nvidia gpu check
+#gpu detection
 
-$hasNvidia = $null -ne (Get-Command "nvidia-smi" -ErrorAction SilentlyContinue)
+function Get-GPUProvider {
+    $nvidiaSmi = Get-Command "nvidia-smi" -ErrorAction SilentlyContinue
+    if ($nvidiaSmi) { return "nvidia" }
 
-if ($hasNvidia) {
-    Write-Host "  NVIDIA GPU detected." -ForegroundColor Green
-    Write-Host "  Watcher will read live GPU metrics via nvidia-smi." -ForegroundColor Green
-    $envProvider = "nvidia"
+    try {
+        $adapters = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop
+        $names = ($adapters | ForEach-Object { $_.Name }) -join " "
+        if ($names -match "(?i)acer|predator|nitro") { return "acer" }
+    }
+    catch {}
+
+    return "none"
 }
-else {
-    Write-Host "  No NVIDIA GPU detected." -ForegroundColor Yellow
-    Write-Host "  Watcher will run in mock mode with simulated GPU metrics." -ForegroundColor Yellow
-    Write-Host "  Live metrics require an NVIDIA GPU + NVIDIA Container Toolkit installed in WSL." -ForegroundColor Yellow
-    Write-Host "  Run: wsl -d Ubuntu sudo bash setup-nvidia-gpu.sh" -ForegroundColor Yellow
-    $envProvider = "mock"
+
+$gpuProvider = Get-GPUProvider
+
+switch ($gpuProvider) {
+    "nvidia" {
+        Write-Host "  GPU detected: NVIDIA" -ForegroundColor Green
+        Write-Host "  Watcher will read live GPU metrics via nvidia-smi." -ForegroundColor Green
+        $envProvider = "nvidia"
+    }
+    "acer" {
+        Write-Host "  GPU detected: Acer" -ForegroundColor Yellow
+        Write-Host "  Basic GPU identification only." -ForegroundColor Yellow
+        $envProvider = "acer"
+    }
+    default {
+        Write-Host "  No supported GPU detected." -ForegroundColor Yellow
+        Write-Host "  Watcher will run in mock mode." -ForegroundColor Yellow
+        Write-Host "  For NVIDIA: install NVIDIA Container Toolkit in WSL" -ForegroundColor Yellow
+        Write-Host "  Run: wsl -d Ubuntu sudo bash setup-nvidia-gpu.sh" -ForegroundColor Yellow
+        $envProvider = "mock"
+    }
 }
 
-if ($hasNvidia) {
+if ($gpuProvider -eq "nvidia") {
     @"
 services:
   watcher:
