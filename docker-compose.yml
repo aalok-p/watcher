@@ -9,7 +9,7 @@ services:
       SCREENSHOT_ENABLED: "true"
       PORT: 8000
 
-      # GPU provider: nvidia (default), amd, acer, or mock
+      # GPU provider: nvidia (default), amd, intel, acer, or mock
       # Set by setup-windows.ps1 or .env
       GPU_PROVIDER: ${GPU_PROVIDER:-nvidia}
 

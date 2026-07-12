@@ -7,6 +7,8 @@ if provider == "nvidia":
     from gpu_nvidia import read_nvidia as _read
 elif provider == "amd":
     from gpu_amd import read_amd as _read
+elif provider == "intel":
+    from gpu_intel import read_intel as _read
 elif provider == "acer":
     from gpu_acer import read_acer as _read
 else:

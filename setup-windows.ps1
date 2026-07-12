@@ -74,6 +74,7 @@ function Get-GPUProvider {
         $adapters = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop
         $names = ($adapters | ForEach-Object { $_.Name }) -join " "
         if ($names -match "(?i)amd|radeon|ryzen") { return "amd" }
+        if ($names -match "(?i)intel") { return "intel" }
         if ($names -match "(?i)acer|predator|nitro") { return "acer" }
     }
     catch {}
@@ -93,6 +94,11 @@ switch ($gpuProvider) {
         Write-Host "  GPU detected: AMD" -ForegroundColor Green
         Write-Host "  Watcher will read GPU metrics via ROCm (rocm-smi)." -ForegroundColor Green
         $envProvider = "amd"
+    }
+    "intel" {
+        Write-Host "  GPU detected: Intel" -ForegroundColor Green
+        Write-Host "  Watcher will read GPU metrics via intel_gpu_top." -ForegroundColor Green
+        $envProvider = "intel"
     }
     "acer" {
         Write-Host "  GPU detected: Acer" -ForegroundColor Yellow
@@ -128,6 +134,16 @@ services:
       - /dev/dri
 "@ | Set-Content -Path $gpuOverridePath -Encoding UTF8
     Write-Host "  Generated GPU override for AMD passthrough." -ForegroundColor Green
+    $composeFiles = @("-f", "docker-compose.yml", "-f", "docker-compose.gpu.override.yml")
+}
+elseif ($gpuProvider -eq "intel") {
+    @"
+services:
+  watcher:
+    devices:
+      - /dev/dri
+"@ | Set-Content -Path $gpuOverridePath -Encoding UTF8
+    Write-Host "  Generated GPU override for Intel passthrough." -ForegroundColor Green
     $composeFiles = @("-f", "docker-compose.yml", "-f", "docker-compose.gpu.override.yml")
 }
 else {
