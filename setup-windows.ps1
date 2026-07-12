@@ -67,9 +67,13 @@ function Get-GPUProvider {
     $nvidiaSmi = Get-Command "nvidia-smi" -ErrorAction SilentlyContinue
     if ($nvidiaSmi) { return "nvidia" }
 
+    $rocmsmi = Get-Command "rocm-smi" -ErrorAction SilentlyContinue
+    if ($rocmsmi) { return "amd" }
+
     try {
         $adapters = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop
         $names = ($adapters | ForEach-Object { $_.Name }) -join " "
+        if ($names -match "(?i)amd|radeon|ryzen") { return "amd" }
         if ($names -match "(?i)acer|predator|nitro") { return "acer" }
     }
     catch {}
@@ -84,6 +88,11 @@ switch ($gpuProvider) {
         Write-Host "  GPU detected: NVIDIA" -ForegroundColor Green
         Write-Host "  Watcher will read live GPU metrics via nvidia-smi." -ForegroundColor Green
         $envProvider = "nvidia"
+    }
+    "amd" {
+        Write-Host "  GPU detected: AMD" -ForegroundColor Green
+        Write-Host "  Watcher will read GPU metrics via ROCm (rocm-smi)." -ForegroundColor Green
+        $envProvider = "amd"
     }
     "acer" {
         Write-Host "  GPU detected: Acer" -ForegroundColor Yellow
@@ -108,6 +117,17 @@ services:
       NVIDIA_VISIBLE_DEVICES: all
 "@ | Set-Content -Path $gpuOverridePath -Encoding UTF8
     Write-Host "  Generated GPU override for NVIDIA passthrough." -ForegroundColor Green
+    $composeFiles = @("-f", "docker-compose.yml", "-f", "docker-compose.gpu.override.yml")
+}
+elseif ($gpuProvider -eq "amd") {
+    @"
+services:
+  watcher:
+    devices:
+      - /dev/kfd
+      - /dev/dri
+"@ | Set-Content -Path $gpuOverridePath -Encoding UTF8
+    Write-Host "  Generated GPU override for AMD passthrough." -ForegroundColor Green
     $composeFiles = @("-f", "docker-compose.yml", "-f", "docker-compose.gpu.override.yml")
 }
 else {
